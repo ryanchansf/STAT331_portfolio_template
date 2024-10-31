@@ -1,6 +1,6 @@
 ---
 title: "STAT 331 Portfolio"
-author: "Your Name Goes Here"
+author: "Ryan Chan"
 format: 
   html: 
     self-contained: true
@@ -11,7 +11,7 @@ execute:
   echo: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an __.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_\_.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -24,12 +24,23 @@ execute:
 ```{r}
 #| label: wd-1-csv
 
+# Source: Lab 2, Question 1
+surveys = read_csv(here::here("data", "surveys.csv"),
+                   show_col_types = FALSE)
+
 ```
 
 -   `xlsx`
 
 ```{r}
 #| label: wd-1-xlsx
+
+# Source: Practice Activity 4
+military <- read_xlsx(here::here("data",
+                                 "gov_spending_per_capita.xlsx"),
+                      sheet = "Share of Govt. spending",
+                      skip = 7,
+                      n_max = 191)
 
 ```
 
@@ -38,12 +49,35 @@ execute:
 ```{r}
 #| label: wd-1-txt
 
+# Source: Check-in 2.3
+ages_tab <- read_table(file = here::here("Week 2",
+                                         "Check-ins",
+                                         "Ages_Data",
+                                         "ages_tab.txt"))
+
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
 
 ```{r}
 #| label: wd-2
+
+# Source: Challenge 3, Question 1
+teacher_evals_compare <- teacher_evals |>
+  filter(question_no == 903) |>
+  mutate(
+    SET_level = ifelse(SET_score_avg >= 4,
+                       "excellent", 
+                       "standard"),
+    sen_level = ifelse(seniority <= 4, 
+                       "junior", 
+                       "senior")
+  ) |>
+  select(
+    course_id,
+    SET_level,
+    sen_level
+)
 
 ```
 
@@ -54,12 +88,33 @@ execute:
 ```{r}
 #| label: wd-3-numeric
 
+# Source: Lab 3, Question 9
+teacher_evals_clean |>
+  group_by(course_id, teacher_id) |>
+  summarise(question_count = n_distinct(question_no)) |>
+  filter(question_count == 9)
+
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
 
 ```{r}
 #| label: wd-3-string
+
+# Source: Lab 5, Finding Suspect
+person |>
+  inner_join(get_fit_now_member |>
+               rename(membership_id = id),
+             join_by(id == person_id)) |>
+  left_join(get_fit_now_check_in,
+            join_by(membership_id == membership_id)) |>
+  left_join(drivers_license,
+            join_by(license_id == id)) |>
+  filter(ymd(check_in_date) == ymd(20180109),
+         gender == "male",
+         membership_status == "gold",
+         str_detect(membership_id, "^48Z"),
+         str_detect(plate_number, "H42W"))
 
 ```
 
@@ -68,12 +123,38 @@ execute:
 ```{r}
 #| label: wd-3-factor
 
+# Source: Lab 4, Question 2
+ca_childcare <- counties |>
+  inner_join(childcare_costs,
+             by = join_by(county_fips_code)) |>
+  filter(state_name == "California")
+
 ```
 
 -   date (example must use functions from **lubridate**)
 
 ```{r}
 #| label: wd-3-date
+
+# modify: I would recommend first renaming the id column of the person data **and then** piping into inner_join(). It is hard to understand what data are being joined when you are nesting functions inside of functions.
+
+# Lab 5, Step 5
+person |>
+  inner_join(drivers_license,
+             join_by(license_id == id)) |>
+  inner_join(facebook_event_checkin,
+             join_by(id == person_id)) |>
+  filter(gender == "female",
+         hair_color == "red",
+         height %in% c(65:67),
+         car_make == "Tesla",
+         car_model == "Model S",
+         event_name == "SQL Symphony Concert",
+         month(ymd(date)) == 12,
+         year(ymd(date)) == 2017) |>
+  group_by(id) |>
+  summarize(concert_attendance = n()) |>
+  filter(concert_attendance == 3)
 
 ```
 
@@ -91,6 +172,21 @@ execute:
 ```{r}
 #| label: wd-4-string
 
+# Source: Lab 4, Question 3
+ca_childcare <- ca_childcare |> 
+  mutate(county_name = str_remove(county_name, " County"),
+         region = fct_collapse(county_name,
+                               "Superior California" = c("Butte", "Colusa", "El Dorado", "Glenn", "Lassen", "Modoc", "Nevada", "Placer", "Plumas", "Sacramento", "Shasta", "Sierra", "Siskiyou", "Sutter", "Tehama", "Yolo", "Yuba"),
+                               "North Coast" = c("Del Norte", "Humboldt", "Lake", "Mendocino", "Napa", "Sonoma", "Trinity"),
+                               "San Francisco Bay Area" = c("Alameda", "Contra Costa", "Marin", "San Francisco", "San Mateo", "Santa Clara", "Solano"),
+                               "Northern San Joaquin Valley" = c("Alpine", "Amador", "Calaveras", "Madera", "Mariposa", "Merced", "Mono", "San Joaquin", "Stanislaus", "Tuolumne"),
+                               "Central Coast" = c("Monterey", "San Benito", "San Luis Obispo", "Santa Barbara", "Santa Cruz", "Ventura"),
+                               "Southern San Joaquin Valley" = c("Fresno", "Inyo", "Kern", "Kings", "Tulare"),
+                               "Inland Empire" = c("Riverside", "San Bernardino"),
+                               "Los Angeles County" = c("Los Angeles"),
+                               "Orange County" = c("Orange"),
+                               "San Diego-Imperial" = c("San Diego", "Imperial")))
+
 ```
 
 -   factor (example must use functions from **forcats**)
@@ -98,12 +194,28 @@ execute:
 ```{r}
 #| label: wd-4-factor
 
+# Source: Lab 4, Question 3
+ca_childcare <- ca_childcare |> 
+  mutate(county_name = str_remove(county_name, " County"),
+         region = fct_collapse(county_name,
+                               "Superior California" = c("Butte", "Colusa", "El Dorado", "Glenn", "Lassen", "Modoc", "Nevada", "Placer", "Plumas", "Sacramento", "Shasta", "Sierra", "Siskiyou", "Sutter", "Tehama", "Yolo", "Yuba"),
+                               "North Coast" = c("Del Norte", "Humboldt", "Lake", "Mendocino", "Napa", "Sonoma", "Trinity"),
+                               "San Francisco Bay Area" = c("Alameda", "Contra Costa", "Marin", "San Francisco", "San Mateo", "Santa Clara", "Solano"),
+                               "Northern San Joaquin Valley" = c("Alpine", "Amador", "Calaveras", "Madera", "Mariposa", "Merced", "Mono", "San Joaquin", "Stanislaus", "Tuolumne"),
+                               "Central Coast" = c("Monterey", "San Benito", "San Luis Obispo", "Santa Barbara", "Santa Cruz", "Ventura"),
+                               "Southern San Joaquin Valley" = c("Fresno", "Inyo", "Kern", "Kings", "Tulare"),
+                               "Inland Empire" = c("Riverside", "San Bernardino"),
+                               "Los Angeles County" = c("Los Angeles"),
+                               "Orange County" = c("Orange"),
+                               "San Diego-Imperial" = c("San Diego", "Imperial")))
 ```
 
 -   date (example must use functions from **lubridate**)
 
 ```{r}
 #| label: wd-4-date
+
+# use same as above for WD-3 - date, make the inner_join a mutate()
 
 ```
 
