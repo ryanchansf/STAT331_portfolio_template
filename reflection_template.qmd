@@ -248,6 +248,13 @@ person |>
 ```{r}
 #| label: wd-5-inner
 
+# Source: Lab 5, Step 4
+person |>
+  inner_join(interview,
+             join_by(id == person_id)) |>
+  filter(id == 67318) |>
+  pull(transcript)
+
 ```
 
 -   `full_join()`
@@ -352,12 +359,46 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: r-2-1
 
+# Source: Lab 2, Question 16
+ggplot(data = surveys,
+       mapping = aes(x = species,
+                     y = weight)
+       ) +
+  geom_jitter(color = "steelblue",
+              alpha = 0.5,
+              show.legend = FALSE) +
+  geom_boxplot(outliers = FALSE) +
+  theme(axis.text.x = element_text(angle = 45, 
+                                   hjust = 1)) +
+  labs(
+    x = "Species",
+    y = "",
+    subtitle = "Weight (g)",
+    title = "Weight Distribution Across Rodent Species from Portal, Arizona"
+  )
+
 ```
 
 -   Example of **dplyr** pipeline
 
 ```{r}
 #| label: r-2-2
+
+# Source: Challenge 3, Question 1
+teacher_evals_compare <- teacher_evals |>
+  filter(question_no == 903) |>
+  mutate(SET_level = ifelse(SET_score_avg >= 4,
+                       "excellent", 
+                       "standard"),
+         sen_level = ifelse(seniority <= 4, 
+                       "junior", 
+                       "senior")
+  ) |>
+  select(
+    course_id,
+    SET_level,
+    sen_level
+  )
 
 ```
 
@@ -393,12 +434,44 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-1-num
 
+# Source: Lab 2, Question 4
+ggplot(data = surveys) +
+  geom_point(mapping = aes(x = weight,
+                           y = hindfoot_length),
+             position = "jitter",
+             alpha = 0.5
+  ) +
+  facet_wrap(~species) +
+  labs(x = "Weight (g)",
+       y = "",
+       title = "Relationship between Weight and Hindfoot Length in Species from Portal, AZ",
+       subtitle = "Hindfoot Length (mm)",
+  )
+
 ```
 
 -   at least one numeric variable and one categorical variable
 
 ```{r}
 #| label: dvs-2-num-cat
+
+# Source: Lab 2, Question 16
+ggplot(data = surveys,
+       mapping = aes(x = species,
+                     y = weight)
+       ) +
+  geom_jitter(color = "steelblue",
+              alpha = 0.5,
+              show.legend = FALSE) +
+  geom_boxplot(outliers = FALSE) +
+  theme(axis.text.x = element_text(angle = 45, 
+                                   hjust = 1)) +
+  labs(
+    x = "Species",
+    y = "",
+    subtitle = "Weight (g)",
+    title = "Weight Distribution Across Rodent Species from Portal, Arizona"
+  )
 
 ```
 
@@ -414,6 +487,8 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-2-date
 
+# N/A
+
 ```
 
 **DVS-2: I use plot modifications to make my visualization clear to the reader.**
@@ -422,6 +497,24 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: dvs-2-1
+
+# Source: Lab 2, Question 16
+ggplot(data = surveys,
+       mapping = aes(x = species,
+                     y = weight)
+       ) +
+  geom_jitter(color = "steelblue",
+              alpha = 0.5,
+              show.legend = FALSE) +
+  geom_boxplot(outliers = FALSE) +
+  theme(axis.text.x = element_text(angle = 45, 
+                                   hjust = 1)) +
+  labs(
+    x = "Species",
+    y = "",
+    subtitle = "Weight (g)",
+    title = "Weight Distribution Across Rodent Species from Portal, Arizona"
+  )
 
 ```
 
@@ -437,6 +530,59 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-2-3
 
+# Source: Lab 4, Question 6
+# specify exact region order in legend
+region_order <- c("San Francisco Bay Area",
+                  "Orange County",
+                  "Los Angeles County",
+                  "Northern San Joaquin Valley",
+                  "Central Coast",
+                  "Inland Empire",
+                  "Superior California",
+                  "Southern San Joaquin Valley",
+                  "San Diego-Imperial",
+                  "North Coast")
+
+# data cleaning before piping into the plot
+ca_childcare |>
+  filter(!is.na(mc_infant),
+         !is.na(mc_toddler),
+         !is.na(mc_preschool)) |>
+  pivot_longer(cols = c(mc_infant,
+                        mc_toddler,
+                        mc_preschool),
+               names_to = "age_group",
+               values_to = "weekly_price") |>
+  mutate(age_group = factor(age_group,
+                            levels = c("mc_infant", "mc_toddler", "mc_preschool"),
+                            labels = c("Infant", "Toddler", "Preschool")),
+         region = factor(region,
+                         levels = region_order)) |>
+  # create the plot
+  ggplot(mapping = aes(x = study_year,
+                       y = weekly_price,
+                       color = region)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess") +
+  facet_wrap(~ age_group) +
+  labs(x = "Study Year",
+       y = "",
+       subtitle = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  scale_x_continuous(breaks = seq(2008,
+                                  2018,
+                                  by = 2)) +
+  scale_y_continuous(limits = c(100, 500),
+                     labels = label_currency(prefix = "$", # adding $ to y-axis labels
+                                             accuracy = 1)) +
+  theme(legend.position = "right",
+        strip.background = element_rect(color = "black"),
+        panel.border = element_rect(color = "black",
+                                    fill = NA), # black border around each plot
+        aspect.ratio = 1.1,
+        axis.text = element_text(size = 6)
+  )
+
 ```
 
 **DVS-3: I show creativity in my visualizations**
@@ -445,6 +591,21 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: dvs-3-1
+
+# Source: Challenge 3, Question 2
+ggplot(data = teacher_evals_compare,
+       mapping = aes(x = sen_level,
+                     fill = SET_level)
+       ) +
+  geom_bar(position = "stack") +
+  labs(
+    x = "Seniority of Instructor",
+    y = "",
+    subtitle = "Number of Sections"
+  ) +
+  scale_fill_manual(
+    values = c("steelblue", "orange3")
+  )
 
 ```
 
@@ -468,6 +629,16 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: dvs-4-summarize
+
+# Source: Lab 4, Question 4
+ca_childcare |>
+  group_by(region, study_year) |>
+  filter(study_year %in% c(2008, 2018)) |>
+  summarize(median_mhi = median(mhi_2018,
+                                na.rm = TRUE)) |>
+  pivot_wider(names_from = study_year,
+              values_from = median_mhi) |>
+  arrange(desc(`2018`))
 
 ```
 
@@ -501,12 +672,29 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-6-1
 
+# Source: Lab 3, Question 6
+# create new df with counts for each
+num_instructors <- teacher_evals_clean |>
+  summarise(unique_instructors = n_distinct(teacher_id),
+            unique_courses = n_distinct(course_id),
+            unique_combos = n_distinct(teacher_id, course_id))
+
+num_instructors
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dvs-6-2
+
+# Source: Lab 3, Question 8
+teacher_evals_clean |>
+  group_by(academic_degree, sex) |>
+  summarise(
+    avg_seniority = mean(seniority),
+    total_instructors = n_distinct(teacher_id)
+  )
 
 ```
 
@@ -517,12 +705,27 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-7-1
 
+# Source: Lab 3, Question 8
+teacher_evals_clean |>
+  group_by(academic_degree, sex) |>
+  summarise(
+    avg_seniority = mean(seniority),
+    total_instructors = n_distinct(teacher_id)
+  )
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dvs-7-2
+
+# Source: Lab 3, Question 11
+teacher_evals_clean |>
+  group_by(teacher_id) |>
+  filter(seniority == 1) |>
+  summarise(avg_failing = mean(percent_failed_cur)) |>
+  filter(avg_failing == max(avg_failing) | avg_failing == min(avg_failing))
 
 ```
 
@@ -535,6 +738,13 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: pe-1-one-call
 
+# Source: Lab 5, Step 1
+crime_scene_report |>
+  filter(city == "SQL City",
+         ymd(date) == ymd(20180115),
+         type == "murder") |>
+  pull(description)
+
 ```
 
 -   `across()`
@@ -542,12 +752,16 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: pe-1-across
 
+# N/A
+
 ```
 
 -   `map()` functions
 
 ```{r}
 #| label: pe-1-map-1
+
+# N/A
 
 ```
 
@@ -558,12 +772,16 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: pe-2-1
 
+# N/A
+
 ```
 
 -   Function that operates on data frames
 
 ```{r}
 #| label: pe-2-2
+
+# N/A
 
 ```
 
@@ -574,6 +792,8 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: pe-3-across
 
+# N/A
+
 ```
 
 -   `map()` function with **one** input (e.g., `map()`, `map_chr()`, `map_dbl()`, etc.)
@@ -581,12 +801,16 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: pe-3-map-1
 
+# N/A
+
 ```
 
 -   `map()` function with **more than one** input (e.g., `map_2()` or `pmap()`)
 
 ```{r}
 #| label: pe-3-map-2
+
+# N/A
 
 ```
 
@@ -604,6 +828,47 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: pe-4-2
 
+# Source: Lab 4, Question 6
+# data cleaning before piping into the plot
+ca_childcare |>
+  filter(!is.na(mc_infant),
+         !is.na(mc_toddler),
+         !is.na(mc_preschool)) |>
+  pivot_longer(cols = c(mc_infant,
+                        mc_toddler,
+                        mc_preschool),
+               names_to = "age_group",
+               values_to = "weekly_price") |>
+  mutate(age_group = factor(age_group,
+                            levels = c("mc_infant", "mc_toddler", "mc_preschool"),
+                            labels = c("Infant", "Toddler", "Preschool")),
+         region = factor(region,
+                         levels = region_order)) |>
+  # create the plot
+  ggplot(mapping = aes(x = study_year,
+                       y = weekly_price,
+                       color = region)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess") +
+  facet_wrap(~ age_group) +
+  labs(x = "Study Year",
+       y = "",
+       subtitle = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  scale_x_continuous(breaks = seq(2008,
+                                  2018,
+                                  by = 2)) +
+  scale_y_continuous(limits = c(100, 500),
+                     labels = label_currency(prefix = "$", # adding $ to y-axis labels
+                                             accuracy = 1)) +
+  theme(legend.position = "right",
+        strip.background = element_rect(color = "black"),
+        panel.border = element_rect(color = "black",
+                                    fill = NA), # black border around each plot
+        aspect.ratio = 1.1,
+        axis.text = element_text(size = 6)
+  )
+
 ```
 
 ## Data Simulation & Statisical Models
@@ -615,12 +880,16 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dsm-1-1
 
+# N/A
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dsm-1-2
+
+# N/A
 
 ```
 
@@ -631,12 +900,32 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dsm-2-1
 
+# Source: Challenge 3, Question 3
+# contingency table between SET_level and sen_level for chi-squared test
+cont_table <- table(
+  teacher_evals_compare$SET_level,
+  teacher_evals_compare$sen_level
+)
+
+chisq.test(cont_table)
+
+# Since the p-value = 0.001997, which is less than 0.05, we reject the null hypothesis. Thus, we conclude that there is a significant association between the SET_level, or the evaluation level, and the sen_level, or seniority level, and that the SET_level is not independent of the seniority level of the instructors. This means that seniority is likely a significant factor in the evaluation scores for instructors.
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dsm-2-2
+
+# Source: Lab 2, Question 17
+# ANOVA test
+species_mod <- aov(weight ~ species, 
+                   data = surveys)
+
+summary(species_mod)
+
+# Since the p-value is significantly less than 0.05, we reject the null hypothesis that the population mean weight is the same between all fourteen rodent species. Thus, there is strong evidence to suggest that at least one rodent species has a different population mean weight in comparison to the others.
 
 ```
 
