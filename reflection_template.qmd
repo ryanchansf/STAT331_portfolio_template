@@ -101,10 +101,17 @@ teacher_evals_clean |>
 ```{r}
 #| label: wd-3-string
 
-# Source: Lab 5, Finding Suspect
+# GROWING COMMENT: I strongly recommend against nested functions, as they are difficult for people to understand what your code is doing. Having two lines is not less efficient and is more readable.
+# 
+# I would recommend first renaming the id column of the person data **and then** piping into inner_join(). It is hard to understand what data are being joined when you are nesting functions inside of functions.
+
+# Source: Lab 5, Step 3
+# REVISION: renaming id to membership_id in get_fit_now_member before joining to avoid nested functions
+get_fit_now_member <- get_fit_now_member |>
+  rename(membership_id = id)
+
 person |>
-  inner_join(get_fit_now_member |>
-               rename(membership_id = id),
+  inner_join(get_fit_now_member,
              join_by(id == person_id)) |>
   left_join(get_fit_now_check_in,
             join_by(membership_id == membership_id)) |>
@@ -136,9 +143,7 @@ ca_childcare <- counties |>
 ```{r}
 #| label: wd-3-date
 
-# modify: I would recommend first renaming the id column of the person data **and then** piping into inner_join(). It is hard to understand what data are being joined when you are nesting functions inside of functions.
-
-# Lab 5, Step 5
+# Source: Lab 5, Step 5
 person |>
   inner_join(drivers_license,
              join_by(license_id == id)) |>
@@ -164,6 +169,8 @@ person |>
 
 ```{r}
 #| label: wd-4-numeric
+
+# N/A
 
 ```
 
@@ -215,7 +222,14 @@ ca_childcare <- ca_childcare |>
 ```{r}
 #| label: wd-4-date
 
-# use same as above for WD-3 - date, make the inner_join a mutate()
+# Source: Lab 5, Step 1
+# REVISION: converting date column into a date-time variable
+crime_scene_report |>
+  mutate(date = ymd(date)) |>
+  filter(city == "SQL City",
+         date == ymd(20180115),
+         type == "murder") |>
+  pull(description)
 
 ```
 
@@ -241,6 +255,8 @@ person |>
 ```{r}
 #| label: wd-5-right
 
+# N/A
+
 ```
 
 -   `inner_join()`
@@ -262,6 +278,8 @@ person |>
 ```{r}
 #| label: wd-5-full
 
+# N/A
+
 ```
 
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
@@ -271,12 +289,16 @@ person |>
 ```{r}
 #| label: wd-6-semi
 
+# N/A
+
 ```
 
 -   `anti_join()`
 
 ```{r}
 #| label: wd-6-anti
+
+# N/A
 
 ```
 
@@ -352,6 +374,10 @@ ca_childcare |>
 
 I've done this in the following provided assignments:
 
+-   Labs 1-5
+
+-   Challenges 1-3
+
 **R-2: I can write well documented and tidy code.**
 
 -   Example of **ggplot2** plotting
@@ -407,6 +433,34 @@ teacher_evals_compare <- teacher_evals |>
 ```{r}
 #| label: r-2-3
 
+# GROWING COMMENT: I strongly recommend against nested functions, as they are difficult for people to understand what your code is doing. Having two lines is not less efficient and is more readable.
+# 
+# I would recommend first renaming the id column of the person data **and then** piping into inner_join(). It is hard to understand what data are being joined when you are nesting functions inside of functions.
+
+# Source: Lab 5, Step 3
+# REVISION: renaming id to membership_id in get_fit_now_member before joining to avoid nested functions
+
+# the dataframes that are needed to get the necessary information from the clues are as follows:
+# - get_fit_now_member
+# - get_fit_now_check_in
+# - drivers_license
+# these will be joined together with the person dataframe, and will undergo filtering from the clues
+get_fit_now_member <- get_fit_now_member |>
+  rename(membership_id = id)
+
+person |>
+  inner_join(get_fit_now_member,
+             join_by(id == person_id)) |>
+  left_join(get_fit_now_check_in,
+            join_by(membership_id == membership_id)) |>
+  left_join(drivers_license,
+            join_by(license_id == id)) |>
+  filter(ymd(check_in_date) == ymd(20180109),
+         gender == "male",
+         membership_status == "gold",
+         str_detect(membership_id, "^48Z"),
+         str_detect(plate_number, "H42W"))
+
 ```
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
@@ -416,12 +470,16 @@ teacher_evals_compare <- teacher_evals |>
 ```{r}
 #| label: r-3-example
 
+# N/A
+
 ```
 
 -   Example of function stops
 
 ```{r}
 #| label: r-3-function-stops
+
+# N/A
 
 ```
 
@@ -480,6 +538,21 @@ ggplot(data = surveys,
 ```{r}
 #| label: dvs-2-cat
 
+# Source: Challenge 3, Question 2
+ggplot(data = teacher_evals_compare,
+       mapping = aes(x = sen_level,
+                     fill = SET_level)
+       ) +
+  geom_bar(position = "stack") +
+  labs(
+    x = "Seniority of Instructor",
+    y = "",
+    subtitle = "Number of Sections"
+  ) +
+  scale_fill_manual(
+    values = c("steelblue", "orange3")
+  )
+
 ```
 
 -   dates (timeseries plot)
@@ -487,7 +560,58 @@ ggplot(data = surveys,
 ```{r}
 #| label: dvs-2-date
 
-# N/A
+# Source: Lab 4, Question 6
+# specify exact region order in legend
+region_order <- c("San Francisco Bay Area",
+                  "Orange County",
+                  "Los Angeles County",
+                  "Northern San Joaquin Valley",
+                  "Central Coast",
+                  "Inland Empire",
+                  "Superior California",
+                  "Southern San Joaquin Valley",
+                  "San Diego-Imperial",
+                  "North Coast")
+
+# data cleaning before piping into the plot
+ca_childcare |>
+  filter(!is.na(mc_infant),
+         !is.na(mc_toddler),
+         !is.na(mc_preschool)) |>
+  pivot_longer(cols = c(mc_infant,
+                        mc_toddler,
+                        mc_preschool),
+               names_to = "age_group",
+               values_to = "weekly_price") |>
+  mutate(age_group = factor(age_group,
+                            levels = c("mc_infant", "mc_toddler", "mc_preschool"),
+                            labels = c("Infant", "Toddler", "Preschool")),
+         region = factor(region,
+                         levels = region_order)) |>
+  # create the plot
+  ggplot(mapping = aes(x = study_year,
+                       y = weekly_price,
+                       color = region)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess") +
+  facet_wrap(~ age_group) +
+  labs(x = "Study Year",
+       y = "",
+       subtitle = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  scale_x_continuous(breaks = seq(2008,
+                                  2018,
+                                  by = 2)) +
+  scale_y_continuous(limits = c(100, 500),
+                     labels = label_currency(prefix = "$", # adding $ to y-axis labels
+                                             accuracy = 1)) +
+  theme(legend.position = "right",
+        strip.background = element_rect(color = "black"),
+        panel.border = element_rect(color = "black",
+                                    fill = NA), # black border around each plot
+        aspect.ratio = 1.1,
+        axis.text = element_text(size = 6)
+  )
 
 ```
 
@@ -522,6 +646,24 @@ ggplot(data = surveys,
 
 ```{r}
 #| label: dvs-2-2
+
+# Source: Lab 2, Question 16
+ggplot(data = surveys,
+       mapping = aes(x = species,
+                     y = weight)
+       ) +
+  geom_jitter(color = "steelblue",
+              alpha = 0.5,
+              show.legend = FALSE) +
+  geom_boxplot(outliers = FALSE) +
+  theme(axis.text.x = element_text(angle = 45, 
+                                   hjust = 1)) +
+  labs(
+    x = "Species",
+    y = "",
+    subtitle = "Weight (g)",
+    title = "Weight Distribution Across Rodent Species from Portal, Arizona"
+  )
 
 ```
 
@@ -614,12 +756,55 @@ ggplot(data = teacher_evals_compare,
 ```{r}
 #| label: dvs-3-2
 
+# N/A
+
 ```
 
 -   I can be creative...
 
 ```{r}
 #| label: dvs-3-3
+
+# Source: Lab 4, Question 6
+# data cleaning before piping into the plot
+ca_childcare |>
+  filter(!is.na(mc_infant),
+         !is.na(mc_toddler),
+         !is.na(mc_preschool)) |>
+  pivot_longer(cols = c(mc_infant,
+                        mc_toddler,
+                        mc_preschool),
+               names_to = "age_group",
+               values_to = "weekly_price") |>
+  mutate(age_group = factor(age_group,
+                            levels = c("mc_infant", "mc_toddler", "mc_preschool"),
+                            labels = c("Infant", "Toddler", "Preschool")),
+         region = factor(region,
+                         levels = region_order)) |>
+  # create the plot
+  ggplot(mapping = aes(x = study_year,
+                       y = weekly_price,
+                       color = region)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess") +
+  facet_wrap(~ age_group) +
+  labs(x = "Study Year",
+       y = "",
+       subtitle = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  scale_x_continuous(breaks = seq(2008,
+                                  2018,
+                                  by = 2)) +
+  scale_y_continuous(limits = c(100, 500),
+                     labels = label_currency(prefix = "$", # adding $ to y-axis labels
+                                             accuracy = 1)) +
+  theme(legend.position = "right",
+        strip.background = element_rect(color = "black"),
+        panel.border = element_rect(color = "black",
+                                    fill = NA), # black border around each plot
+        aspect.ratio = 1.1,
+        axis.text = element_text(size = 6)
+  )
 
 ```
 
@@ -646,6 +831,8 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-4-across
+
+# N/A
 
 ```
 
@@ -821,6 +1008,14 @@ crime_scene_report |>
 ```{r}
 #| label: pe-4-1
 
+# Source: Lab 3, Question 7
+# unique teacher-course combinations with any column being NA
+teacher_evals_clean |>
+  group_by(course_id, 
+           teacher_id) |>
+  filter(if_any(everything(),
+                is.na))
+
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
@@ -933,14 +1128,34 @@ summary(species_mod)
 
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
 
+I demonstrated revisions in thinking through lab revisions throughout the course. Notably, one of the things that I struggled with to begin was remaining consistent with my code formatting. In the earlier assignments (i.e. Lab 1, 2), I struggled with consistent standards such as indentation, spacing, newlines. Additionally, I initially lacked in my correlation with problems in labs/challenges to the learning targets in mind. Through constructive feedback, I was able to adjust the way I think about the problems and envision the learning targets meant to be gauged at each problem. In this sense, I've been able to take feedback in stride and be more conscious about the ways in which my code reflects different abilities, such as code tidiness, effective use of functions, reducing code redundancy, and creating descriptive statistics. The code examples provided in my portfolio exhibit some of the ways in which I have revised my thinking with respect to formatting, increasingly descriptive graphs and plots, and overall writing code that is easy to comprehend.
+
 <!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
+
+Revisions and growing comments are indicated in ALL CAPS in the comments above the code chunk.
 
 ## Extending My Thinking
 
 <!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
 
+So far, I've been able to extend my thinking through lab and challenge assignments. Specifically, in Challenge 3, I was able to extend my thinking by applying the context of the data set of interest to my own experiences to further analyze correlation between variables. In that assignment, I considered additional variables that could provide even better statistical analysis to represent the relationships in a study on teachers, students, and their evaluations. I also extended my thinking by challenging myself to add additional features to graphs/plots that could enhance the story told by it. For instance, in Lab 4, I utilized an additional package to add dollar signs to axis labels, making the plot more descriptive and comprehensible.
+
 ## Peer Support & Collaboration
 
 <!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
 
+Lab 4 Code Review:
+
+"Hi Emi! Great job on Lab 4. A few notes:\
+
+First of all, your description of the dataset in question 1 was highly detailed, and I admire how you referenced specifically where the data came from. I noticed you used single quotes (') around some of your variable names: if you wanted to make those highlighted in your html, you could use backticks instead (e.g. \`childcare_costs\` as opposed to 'childcare_costs').\
+
+At a first glance, your code styling overall looks easy to digest. One suggestion I would have is to be a little bit more consistent with your spacing and newlines. Particularly, in question 4, I think you did a great job with spacing out each function in the pipeline into new lines, but in question 6, you might benefit by making sure all of the pipeline functions are aligned/spaced properly. The same applies to newlines in the function arguments; in question 6, you added new lines for every new argument, but in other code chunks you did all arguments in one line. This is a pretty minor thing, but I think it could be easily fixed!\
+
+That being said, I feel you did a good job recreating the plot. While you didn't quite get the order of the regions the same in the legend, you were able to emulate the ranges x and y scales well. Next time, you can even an add a call to theme() in your plot and specify an aspect ratio to make the graphs more squared.\
+
+Overall, great job with this lab Emi!"
+
 <!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
+
+Through our class practice activities, I have been able to exercise my skills as both an ideator and active listener. The pair programming activities have allowed me to improve my ability to communicate thoughts verbally, allowing both myself and my partner to better understand concepts together. This has been beneficial, as it's taught me the value in sharing thoughts rather than simpkly outputting everything that comes to mind. In programming, collaboration is paramount; I've learned to work in such a way that allows both partners to understand and contribute effectively.
