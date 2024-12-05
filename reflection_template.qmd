@@ -170,7 +170,26 @@ person |>
 ```{r}
 #| label: wd-4-numeric
 
-# N/A
+# REVISION AFTER MIDTERM: 
+
+# Source: Challenge 3, Question 1
+# REVISION: since question numbers are all in the 900s, subtracting 900 from each in order to refer to them by their single/double digit identifier
+teacher_evals_compare <- teacher_evals |>
+  mutate(
+    question_no = question_no - 900,
+    SET_level = ifelse(SET_score_avg >= 4,
+                       "excellent", 
+                       "standard"),
+    sen_level = ifelse(seniority <= 4, 
+                       "junior", 
+                       "senior")
+  ) |>
+  filter(question_no == 3) |>
+  select(
+    course_id,
+    SET_level,
+    sen_level
+)
 
 ```
 
@@ -179,20 +198,22 @@ person |>
 ```{r}
 #| label: wd-4-string
 
-# Source: Lab 4, Question 3
-ca_childcare <- ca_childcare |> 
-  mutate(county_name = str_remove(county_name, " County"),
-         region = fct_collapse(county_name,
-                               "Superior California" = c("Butte", "Colusa", "El Dorado", "Glenn", "Lassen", "Modoc", "Nevada", "Placer", "Plumas", "Sacramento", "Shasta", "Sierra", "Siskiyou", "Sutter", "Tehama", "Yolo", "Yuba"),
-                               "North Coast" = c("Del Norte", "Humboldt", "Lake", "Mendocino", "Napa", "Sonoma", "Trinity"),
-                               "San Francisco Bay Area" = c("Alameda", "Contra Costa", "Marin", "San Francisco", "San Mateo", "Santa Clara", "Solano"),
-                               "Northern San Joaquin Valley" = c("Alpine", "Amador", "Calaveras", "Madera", "Mariposa", "Merced", "Mono", "San Joaquin", "Stanislaus", "Tuolumne"),
-                               "Central Coast" = c("Monterey", "San Benito", "San Luis Obispo", "Santa Barbara", "Santa Cruz", "Ventura"),
-                               "Southern San Joaquin Valley" = c("Fresno", "Inyo", "Kern", "Kings", "Tulare"),
-                               "Inland Empire" = c("Riverside", "San Bernardino"),
-                               "Los Angeles County" = c("Los Angeles"),
-                               "Orange County" = c("Orange"),
-                               "San Diego-Imperial" = c("San Diego", "Imperial")))
+# REVISION AFTER MIDTERM: using my own example that uses str_detect() against a specified regex
+
+# Source: Lab 5, Step 2
+# REVISION: increasing efficiency by directly extracting the max of all addresses
+# get both witnesses and their interview transcripts
+person |>
+  filter(
+    (address_street_name == "Northwestern Dr" & 
+       address_number == max(address_number)) |
+    (address_street_name == "Franklin Ave" & 
+       str_detect(name, "^Annabel"))) |>
+  left_join(interview,
+            join_by(id == person_id)) |>
+  select(id,
+         name,
+         transcript)
 
 ```
 
@@ -273,15 +294,6 @@ person |>
 
 ```
 
--   `full_join()`
-
-```{r}
-#| label: wd-5-full
-
-# N/A
-
-```
-
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
 
 -   `semi_join()`
@@ -299,6 +311,7 @@ person |>
 #| label: wd-6-anti
 
 # N/A
+# if I want to do a !%in% (don't want observation that are included in this list)
 
 ```
 
@@ -365,6 +378,17 @@ ca_childcare |>
   pivot_wider(names_from = study_year,
               values_from = median_mhi) |>
   arrange(desc(`2018`))
+
+# REVISION AFTER MIDTERM: making column names more descriptive
+ca_childcare |>
+  group_by(region, study_year) |>
+  filter(study_year %in% c(2008, 2018)) |>
+  summarize(median_mhi = median(mhi_2018,
+                                na.rm = TRUE)) |>
+  pivot_wider(names_from = study_year,
+              values_from = median_mhi,
+              names_glue = "Median household income in {study_year}") |>
+  arrange(desc(`Median household income in 2018`))
 
 ```
 
@@ -988,7 +1012,18 @@ crime_scene_report |>
 ```{r}
 #| label: pe-3-map-1
 
-# N/A
+# Source: Lab 8, Question 4 
+missing_vals <- map_int(.x = fish,
+          .f = ~ sum(is.na(.)))
+tibble(variable = names(fish),
+       count = missing_vals) |>
+  pivot_wider(names_from = variable,
+              values_from = count) |>
+  # table formatting
+  kable() |>
+  kable_styling() |>
+  row_spec(1,
+           background = "lightgray")
 
 ```
 
@@ -997,8 +1032,14 @@ crime_scene_report |>
 ```{r}
 #| label: pe-3-map-2
 
-# N/A
+# Source: Lab 9, Question 6
 
+all_simulations <- grid |> 
+  mutate(simulated_means = pmap(.l = list(n = n, 
+                                          df = df), 
+                                .f = simulate_means)
+         ) |> 
+  unnest(cols = simulated_means) 
 ```
 
 **PE-4: I can use modern tools when carrying out my analysis.**
@@ -1023,12 +1064,14 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-4-2
 
+# REVISION AFTER MIDTERM: removing multiple calls to is.na() and replacing with one call to drop_na()
+
 # Source: Lab 4, Question 6
 # data cleaning before piping into the plot
 ca_childcare |>
-  filter(!is.na(mc_infant),
-         !is.na(mc_toddler),
-         !is.na(mc_preschool)) |>
+  drop_na(mc_infant,
+          mc_toddler,
+          mc_preschool) |>
   pivot_longer(cols = c(mc_infant,
                         mc_toddler,
                         mc_preschool),
@@ -1075,7 +1118,18 @@ ca_childcare |>
 ```{r}
 #| label: dsm-1-1
 
-# N/A
+# Source: Lab 9, Question 1
+# simulate random samples
+randomBabies <- function(nBabies){
+  assignment <- sample(1:nBabies,
+                       size = nBabies)
+  # compare random assignment with original order
+  return(sum(assignment == 1:nBabies))
+}
+
+results <- map_int(.x = 1:10000,
+                   .f = ~ randomBabies(4)
+                   )
 
 ```
 
@@ -1084,7 +1138,27 @@ ca_childcare |>
 ```{r}
 #| label: dsm-1-2
 
-# N/A
+# Source: Lab 9, Question 4, 5, 6
+# simulate sample means for Chi-squared distribution
+simulate_means <- function(n, df){
+  map_dbl(.x = 1:n, 
+          .f = ~rchisq(n = 100,
+                       df = df) |> mean()
+          )
+}
+
+grid <- crossing(n = c(10,
+                       100,
+                       1000,
+                       10000), 
+                 df = 10)
+
+all_simulations <- grid |> 
+  mutate(simulated_means = pmap(.l = list(n = n, 
+                                          df = df), 
+                                .f = simulate_means)
+         ) |> 
+  unnest(cols = simulated_means) 
 
 ```
 
@@ -1095,14 +1169,11 @@ ca_childcare |>
 ```{r}
 #| label: dsm-2-1
 
-# Source: Challenge 3, Question 3
-# contingency table between SET_level and sen_level for chi-squared test
-cont_table <- table(
-  teacher_evals_compare$SET_level,
-  teacher_evals_compare$sen_level
-)
+# REVISION AFTER MIDTERM: performing chi-squared test without creating contingency table
 
-chisq.test(cont_table)
+# Source: Challenge 3, Question 3
+chisq.test(x = teacher_evals_compare$SET_level,
+           y = teacher_evals_compare$sen_level)
 
 # Since the p-value = 0.001997, which is less than 0.05, we reject the null hypothesis. Thus, we conclude that there is a significant association between the SET_level, or the evaluation level, and the sen_level, or seniority level, and that the SET_level is not independent of the seniority level of the instructors. This means that seniority is likely a significant factor in the evaluation scores for instructors.
 
