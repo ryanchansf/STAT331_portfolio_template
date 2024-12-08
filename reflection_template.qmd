@@ -253,7 +253,7 @@ hiring_suspect <- person |>
              join_by(id == person_id)) |>
   mutate(date = ymd(date),
          year = year(date),
-         month = month(date))
+         month = month(date)) |>
   filter(gender == "female",
          hair_color == "red",
          height %in% c(65:67),
@@ -293,7 +293,13 @@ person |>
 ```{r}
 #| label: wd-5-right
 
-# N/A
+# Source: Lab 5, Step 6
+# REVISION: reversing logic to perform right join where the focus is the hiring suspect, adding the interview information for Miranda Priestly if available
+interview |>
+  right_join(hiring_suspect,
+             join_by(person_id == id)) |>
+  select(name,
+         transcript)
 
 ```
 
