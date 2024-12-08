@@ -935,7 +935,13 @@ ca_childcare |>
 ```{r}
 #| label: dvs-4-across
 
-# N/A
+# Source: Lab 3, Question 6
+# REVISION: utilized across() to summarize distinct counts for teacher_id and course_id columns
+num_instructors <- teacher_evals_clean |>
+  summarise(across(.cols = c(teacher_id,
+                             course_id),
+                   .fns = n_distinct,
+                   .names = "unique_{.col}s"))
 
 ```
 
@@ -1122,7 +1128,13 @@ crime_scene_report |>
 ```{r}
 #| label: pe-1-across
 
-# N/A
+# Source: Lab 3, Question 6
+# REVISION: utilized across() to summarize distinct counts for teacher_id and course_id columns
+num_instructors <- teacher_evals_clean |>
+  summarise(across(.cols = c(teacher_id,
+                             course_id),
+                   .fns = n_distinct,
+                   .names = "unique_{.col}s"))
 
 ```
 
@@ -1204,7 +1216,13 @@ teacher_evals_clean <- teacher_evals |>
 ```{r}
 #| label: pe-3-across
 
-# N/A
+# Source: Lab 3, Question 6
+# REVISION: utilized across() to summarize distinct counts for teacher_id and course_id columns
+num_instructors <- teacher_evals_clean |>
+  summarise(across(.cols = c(teacher_id,
+                             course_id),
+                   .fns = n_distinct,
+                   .names = "unique_{.col}s"))
 
 ```
 
