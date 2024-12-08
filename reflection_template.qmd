@@ -723,20 +723,66 @@ ca_childcare |>
 ```{r}
 #| label: dvs-3-1
 
-# Source: Challenge 3, Question 2
-ggplot(data = teacher_evals_compare,
-       mapping = aes(x = sen_level,
-                     fill = SET_level)
-       ) +
-  geom_bar(position = "stack") +
-  labs(
-    x = "Seniority of Instructor",
-    y = "",
-    subtitle = "Number of Sections"
-  ) +
-  scale_fill_manual(
-    values = c("steelblue", "orange3")
-  )
+# Source: Challenge 7, Question 5
+
+# Source for theme elements:
+# - https://ggplot2.tidyverse.org/reference/element.html
+# - https://ggplot2.tidyverse.org/reference/scale_manual.html
+
+# REVISION:
+# - adding unique colors to individual facets
+# - filtering out NA values before condition index calculated
+# - removing legend to reduce redundancy
+# - properly orienting axis labels
+# - adding personal preferences for plot styling with theme()
+
+fish |>
+  drop_na(length,
+          weight) |>
+  # calculate condition indices for fish
+  mutate(condition_index = condition_index(length,
+                                           weight)) |>
+  # plot condition index over time by species
+  ggplot(aes(x = year, 
+             y = condition_index, 
+             color = species)) +
+  geom_jitter(alpha = 0.5) +
+  geom_smooth(method = "loess", 
+              se = FALSE, 
+              linewidth = 0.8) +
+  labs(title = "Blackfoot River Trout Condition Index Over Time by Species",
+       x = "Year",
+       y = "",
+       subtitle = "Condition Index",
+       color = "Species") +
+  # facet by species
+  facet_wrap(~ species, 
+             scales = "free_y") +
+  # custom point colors for each species
+  facet_wrap(~ species, scales = "free_y") +
+  scale_color_manual(values = c("Brown" = "darkseagreen3", 
+                               "Bull" = "orchid2", 
+                               "RBT" = "indianred1", 
+                               "WCT" = "dodgerblue1")) +
+  theme_minimal() +
+  # add additional styling to plot theme
+  theme(plot.title = element_text(size = 16, 
+                                  face = "bold", 
+                                  family = "Verdana"),
+        plot.subtitle = element_text(size = 13,
+                                     family = "Verdana"),
+        axis.title = element_text(size = 13,
+                                  family = "Verdana"),
+        axis.text = element_text(size = 10,
+                                 family = "Verdana"),
+        strip.background = element_rect(fill = "papayawhip",
+                                        color = "gray30"),
+        strip.text = element_text(size = 10,
+                                  face = "italic",
+                                  family = "Verdana"),
+        panel.border = element_rect(color = "gray30",
+                                    fil = NA),
+        legend.position = "none")
 
 ```
 
@@ -744,6 +790,8 @@ ggplot(data = teacher_evals_compare,
 
 ```{r}
 #| label: dvs-3-2
+
+# Source: Challenge 7, Question 5
 
 # REVISION AFTER MIDTERM: removing multiple calls to is.na() and replacing with one call to drop_na()
 # REVISION AFTER MIDTERM: using fct_reorder2() to order legend instead of hardcoding order
@@ -799,46 +847,64 @@ ca_childcare |>
 ```{r}
 #| label: dvs-3-3
 
-# Source: Lab 4, Question 6
-# data cleaning before piping into the plot
-ca_childcare |>
-  filter(!is.na(mc_infant),
-         !is.na(mc_toddler),
-         !is.na(mc_preschool)) |>
-  pivot_longer(cols = c(mc_infant,
-                        mc_toddler,
-                        mc_preschool),
-               names_to = "age_group",
-               values_to = "weekly_price") |>
-  mutate(age_group = factor(age_group,
-                            levels = c("mc_infant", "mc_toddler", "mc_preschool"),
-                            labels = c("Infant", "Toddler", "Preschool")),
-         region = factor(region,
-                         levels = region_order)) |>
-  # create the plot
-  ggplot(mapping = aes(x = study_year,
-                       y = weekly_price,
-                       color = region)) +
-  geom_point(alpha = 0.5) +
-  geom_smooth(method = "loess") +
-  facet_wrap(~ age_group) +
-  labs(x = "Study Year",
+# Source for theme elements:
+# - https://ggplot2.tidyverse.org/reference/element.html
+# - https://ggplot2.tidyverse.org/reference/scale_manual.html
+
+# REVISION:
+# - adding unique colors to individual facets
+# - filtering out NA values before condition index calculated
+# - removing legend to reduce redundancy
+# - properly orienting axis labels
+# - adding personal preferences for plot styling with theme()
+
+fish |>
+  drop_na(length,
+          weight) |>
+  # calculate condition indices for fish
+  mutate(condition_index = condition_index(length,
+                                           weight)) |>
+  # plot condition index over time by species
+  ggplot(aes(x = year, 
+             y = condition_index, 
+             color = species)) +
+  geom_jitter(alpha = 0.5) +
+  geom_smooth(method = "loess", 
+              se = FALSE, 
+              linewidth = 0.8) +
+  labs(title = "Blackfoot River Trout Condition Index Over Time by Species",
+       x = "Year",
        y = "",
-       subtitle = "Weekly Median Price for Center-Based Childcare ($)",
-       color = "California Region") +
-  scale_x_continuous(breaks = seq(2008,
-                                  2018,
-                                  by = 2)) +
-  scale_y_continuous(limits = c(100, 500),
-                     labels = label_currency(prefix = "$", # adding $ to y-axis labels
-                                             accuracy = 1)) +
-  theme(legend.position = "right",
-        strip.background = element_rect(color = "black"),
-        panel.border = element_rect(color = "black",
-                                    fill = NA), # black border around each plot
-        aspect.ratio = 1.1,
-        axis.text = element_text(size = 6)
-  )
+       subtitle = "Condition Index",
+       color = "Species") +
+  # facet by species
+  facet_wrap(~ species, 
+             scales = "free_y") +
+  # custom point colors for each species
+  facet_wrap(~ species, scales = "free_y") +
+  scale_color_manual(values = c("Brown" = "darkseagreen3", 
+                               "Bull" = "orchid2", 
+                               "RBT" = "indianred1", 
+                               "WCT" = "dodgerblue1")) +
+  theme_minimal() +
+  # add additional styling to plot theme
+  theme(plot.title = element_text(size = 16, 
+                                  face = "bold", 
+                                  family = "Verdana"),
+        plot.subtitle = element_text(size = 13,
+                                     family = "Verdana"),
+        axis.title = element_text(size = 13,
+                                  family = "Verdana"),
+        axis.text = element_text(size = 10,
+                                 family = "Verdana"),
+        strip.background = element_rect(fill = "papayawhip",
+                                        color = "gray30"),
+        strip.text = element_text(size = 10,
+                                  face = "italic",
+                                  family = "Verdana"),
+        panel.border = element_rect(color = "gray30",
+                                    fil = NA),
+        legend.position = "none")
 
 ```
 
@@ -849,6 +915,8 @@ ca_childcare |>
 ```{r}
 #| label: dvs-4-summarize
 
+# REVISION AFTER MIDTERM: making column names more descriptive
+
 # Source: Lab 4, Question 4
 ca_childcare |>
   group_by(region, study_year) |>
@@ -856,8 +924,9 @@ ca_childcare |>
   summarize(median_mhi = median(mhi_2018,
                                 na.rm = TRUE)) |>
   pivot_wider(names_from = study_year,
-              values_from = median_mhi) |>
-  arrange(desc(`2018`))
+              values_from = median_mhi,
+              names_glue = "Median household income in {study_year}") |>
+  arrange(desc(`Median household income in 2018`))
 
 ```
 
