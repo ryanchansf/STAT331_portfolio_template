@@ -170,10 +170,9 @@ person |>
 ```{r}
 #| label: wd-4-numeric
 
-# REVISION AFTER MIDTERM: 
+# REVISION AFTER MIDTERM: since question numbers are all in the 900s, subtracting 900 from each in order to refer to them by their single/double digit identifier
 
 # Source: Challenge 3, Question 1
-# REVISION: since question numbers are all in the 900s, subtracting 900 from each in order to refer to them by their single/double digit identifier
 teacher_evals_compare <- teacher_evals |>
   mutate(
     question_no = question_no - 900,
@@ -201,14 +200,16 @@ teacher_evals_compare <- teacher_evals |>
 # REVISION AFTER MIDTERM: using my own example that uses str_detect() against a specified regex
 
 # Source: Lab 5, Step 2
-# REVISION: increasing efficiency by directly extracting the max of all addresses
+# REVISION: extend addresses ending with Dr or Ave to allow for better flexibility in filtering and consistent naming. Standardizing the street extensions makes this more robust and resists inconsistencies in filtering inputs for common mislabels like Dr or Drive.
+
 # get both witnesses and their interview transcripts
 person |>
-  filter(
-    (address_street_name == "Northwestern Dr" & 
-       address_number == max(address_number)) |
-    (address_street_name == "Franklin Ave" & 
-       str_detect(name, "^Annabel"))) |>
+  mutate(address_street_name = str_replace(address_street_name, "Dr$", "Drive"),
+         address_street_name = str_replace(address_street_name, "Ave$", "Avenue")) |>
+  filter((address_street_name == "Northwestern Drive" & 
+          address_number == max(address_number)) |
+         (address_street_name == "Franklin Avenue" & 
+          str_detect(name, "^Annabel"))) |>
   left_join(interview,
             join_by(id == person_id)) |>
   select(id,
@@ -243,14 +244,30 @@ ca_childcare <- ca_childcare |>
 ```{r}
 #| label: wd-4-date
 
-# Source: Lab 5, Step 1
-# REVISION: converting date column into a date-time variable
-crime_scene_report |>
-  mutate(date = ymd(date)) |>
-  filter(city == "SQL City",
-         date == ymd(20180115),
-         type == "murder") |>
-  pull(description)
+# Source: Lab 5, Step 5
+# REVISION: converting date column into date type, then adding year and month columns for easy filtering
+hiring_suspect <- person |>
+  inner_join(drivers_license,
+             join_by(license_id == id)) |>
+  inner_join(facebook_event_checkin,
+             join_by(id == person_id)) |>
+  mutate(date = ymd(date),
+         year = year(date),
+         month = month(date))
+  filter(gender == "female",
+         hair_color == "red",
+         height %in% c(65:67),
+         car_make == "Tesla",
+         car_model == "Model S",
+         event_name == "SQL Symphony Concert",
+         month == 12,
+         year == 2017) |>
+  group_by(id, name) |>
+  summarize(concert_attendance = n(),
+            .groups = "drop") |>
+  filter(concert_attendance == 3)
+
+hiring_suspect
 
 ```
 
