@@ -430,6 +430,7 @@ I've done this in the following provided assignments:
 #| label: r-2-1
 
 # Source: Lab 2, Question 4
+# REVISION: remove tilting of axis labels
 ggplot(data = surveys) +
   geom_point(mapping = aes(x = weight,
                            y = hindfoot_length),
