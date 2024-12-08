@@ -867,12 +867,27 @@ ca_childcare |>
 ```{r}
 #| label: dvs-5-1
 
+# Source: Lab 3, Question 8
+teacher_evals_clean |>
+  group_by(academic_degree, sex) |>
+  summarise(avg_seniority = mean(seniority),
+            total_instructors = n_distinct(teacher_id))
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dvs-5-2
+
+# Source: Lab 3, Question 9
+# REVISION: making output more concise by summarizing information necessary to answer question
+teacher_evals_clean |>
+  group_by(course_id, teacher_id) |>
+  summarise(question_count = n_distinct(question_no), 
+            .groups = "drop") |>
+  filter(question_count == 9) |>
+  count()
 
 ```
 
@@ -916,13 +931,48 @@ teacher_evals_clean |>
 ```{r}
 #| label: dvs-7-1
 
-# Source: Lab 3, Question 8
-teacher_evals_clean |>
-  group_by(academic_degree, sex) |>
-  summarise(
-    avg_seniority = mean(seniority),
-    total_instructors = n_distinct(teacher_id)
-  )
+# Source: Lab 9, Question 2
+# REVISION: added additional styling to the gt table
+# Sources for gt styling and configuration: 
+# - https://chatgpt.com/c/67554333-4c54-800b-af6c-14b149e3bf8d
+# - https://gt.rstudio.com/reference/opt_table_font.html
+# - https://gt.rstudio.com/reference/opt_table_outline.html
+
+results_df |>
+  count(ncorrect) |>
+  mutate(proportion = n / sum(n)) |>
+  select(ncorrect,
+         proportion) |>
+  pivot_wider(names_from = ncorrect,
+              values_from = proportion,
+              names_prefix = "Babies_") |>
+  gt() |>
+  # bold and italicize title and subtitle
+  tab_header(title = md("**Percentage of Correct Baby Assignments**"),
+             subtitle = md("*10,000 Simulations*")) |>
+  fmt_percent() |>
+  # add descriptive column labels
+  cols_label(
+    Babies_0 = "0 Correct Babies",
+    Babies_1 = "1 Correct Baby",
+    Babies_2 = "2 Correct Babies",
+    Babies_4 = "4 Correct Babies"
+  ) |>
+  opt_table_outline() |>
+  opt_table_font(font = "Georgia") |>
+  # add color and borders to column labels
+  tab_style(style = list(cell_fill(color = "honeydew2"),
+                         cell_borders(sides = "right",
+                                      color = "gray14",
+                                      weight = px(3))),
+            locations = cells_column_labels()) |>
+  # add color and borders to row data
+  tab_style(style = list(cell_fill(color = "slategray1"),
+                         cell_borders(sides = "right",
+                                      color = "gray14",
+                                      weight = px(3))),
+            locations = cells_body())
+
 
 ```
 
@@ -931,12 +981,42 @@ teacher_evals_clean |>
 ```{r}
 #| label: dvs-7-2
 
-# Source: Lab 3, Question 11
-teacher_evals_clean |>
-  group_by(teacher_id) |>
-  filter(seniority == 1) |>
-  summarise(avg_failing = mean(percent_failed_cur)) |>
-  filter(avg_failing == max(avg_failing) | avg_failing == min(avg_failing))
+# Source: Lab 9, Question 7
+# REVISION: added additional styling to the gt table
+# Sources for gt styling and configuration: 
+# - https://chatgpt.com/c/67554333-4c54-800b-af6c-14b149e3bf8d
+# - https://gt.rstudio.com/reference/opt_table_font.html
+# - https://gt.rstudio.com/reference/opt_table_outline.html
+# Source for manipulating row colors using log10(): https://www.rdocumentation.org/packages/SparkR/versions/2.1.2/topics/log10
+
+# table to summarize the means across each sample size
+all_simulations |>
+  group_by(n) |>
+  summarise(mean_of_means = mean(simulated_means)) |>
+  gt() |>
+  tab_header(title = md("**Summary of Simulated Means**"),
+             subtitle = md("*Comparison Across Different Sample Sizes*")) |>
+  # add descriptive column names
+  cols_label(n = "Sample Size",
+             mean_of_means = "Mean of Simulated Means") |>
+  opt_table_outline() |>
+  opt_table_font(font = "Georgia") |>
+  # add color and borders to column labels
+  tab_style(style = list(cell_fill(color = "lightsalmon1"),
+                         cell_borders(sides = "right",
+                                      color = "gray14",
+                                      weight = px(3))),
+            locations = cells_column_labels()) |>
+  # add color and borders to row data
+  tab_style(style = cell_borders(sides = "right",
+                                  color = "gray14",
+                                  weight = px(3)),
+            locations = cells_body()) |>
+  # alternate colors for rows by sample size
+  tab_style(style = cell_fill(color = "lightcyan1"),
+            locations = cells_body(rows = log10(n) %% 2 == 0)) |>
+  tab_style(style = cell_fill(color = "lightskyblue1"),
+            locations = cells_body(rows = log10(n) %% 2 == 1))
 
 ```
 
@@ -972,7 +1052,18 @@ crime_scene_report |>
 ```{r}
 #| label: pe-1-map-1
 
-# N/A
+# Source: Lab 8, Question 4 
+missing_vals <- map_int(.x = fish,
+                        .f = ~ sum(is.na(.)))
+tibble(variable = names(fish),
+       count = missing_vals) |>
+  pivot_wider(names_from = variable,
+              values_from = count) |>
+  # table formatting
+  kable() |>
+  kable_styling() |>
+  row_spec(1,
+           background = "lightgray")
 
 ```
 
@@ -983,7 +1074,14 @@ crime_scene_report |>
 ```{r}
 #| label: pe-2-1
 
-# N/A
+# Source: Challenge 7, Lab 2
+# REVISION: optimize conditionals by replacing ifelse() with case_when()
+filter_measurements <- function(vec, lower, upper) {
+  return(case_when(
+    vec >= lower & vec <= upper ~ vec,
+    TRUE ~ NA
+  ))
+}
 
 ```
 
@@ -992,7 +1090,32 @@ crime_scene_report |>
 ```{r}
 #| label: pe-2-2
 
-# N/A
+# Source: Lab 3, Question 5
+# REVISION: adding a function to convert columns to character types
+
+convert_to_char <- function(df, cols) {
+  return(df |>
+           mutate(across(.cols = {{ cols }},
+                         .fns = as.character)))
+}
+
+teacher_evals_clean <- teacher_evals |>
+  rename(sex = gender) |>
+  filter(no_participants >= 10) |>
+  # convert to proper character types
+  convert_to_char(cols = c("teacher_id",
+                           "course_id")) |>
+  select(course_id,
+         teacher_id, 
+         question_no, 
+         no_participants, 
+         resp_share, 
+         SET_score_avg, 
+         percent_failed_cur, 
+         academic_degree, 
+         seniority, 
+         sex
+         )
 
 ```
 
@@ -1014,7 +1137,7 @@ crime_scene_report |>
 
 # Source: Lab 8, Question 4 
 missing_vals <- map_int(.x = fish,
-          .f = ~ sum(is.na(.)))
+                        .f = ~ sum(is.na(.)))
 tibble(variable = names(fish),
        count = missing_vals) |>
   pivot_wider(names_from = variable,
@@ -1050,12 +1173,13 @@ all_simulations <- grid |>
 #| label: pe-4-1
 
 # Source: Lab 3, Question 7
+# REVISION: fixing function syntax and adding named arguments
 # unique teacher-course combinations with any column being NA
 teacher_evals_clean |>
   group_by(course_id, 
            teacher_id) |>
-  filter(if_any(everything(),
-                is.na))
+  filter(if_any(.cols = everything(),
+                .fns = ~ is.na(.x)))
 
 ```
 
