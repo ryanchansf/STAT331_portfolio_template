@@ -324,7 +324,22 @@ person |>
 ```{r}
 #| label: wd-6-semi
 
-# N/A
+# Source: Lab 4, Question 4
+# REVISION: using semi_join() to filter rows by a set of target years
+
+target_years <- tibble(study_year = c(2008,
+                                      2018))
+
+ca_childcare |>
+  semi_join(target_years,
+            by = "study_year") |>
+  group_by(region, study_year) |>
+  summarize(median_mhi = median(mhi_2018,
+                                na.rm = TRUE)) |>
+  pivot_wider(names_from = study_year,
+              values_from = median_mhi,
+              names_glue = "Median household income in {study_year}") |>
+  arrange(desc(`Median household income in 2018`))
 
 ```
 
@@ -333,8 +348,19 @@ person |>
 ```{r}
 #| label: wd-6-anti
 
-# N/A
-# if I want to do a !%in% (don't want observation that are included in this list)
+# Source: Lab 3, Question 12
+# REVISION: using anti_join() to exclude a set of degrees instead of filtering by desired degrees
+
+exclude_degrees = tibble(academic_degree = c("ma",
+                                             "no_dgr"))
+
+teacher_evals_clean |>
+  anti_join(exclude_degrees,
+            by = "academic_degree") |>
+  group_by(teacher_id) |>
+  filter(sex == "female") |>
+  summarise(avg_resp = mean(resp_share)) |>
+  filter(avg_resp == max(avg_resp) | avg_resp == min(avg_resp))
 
 ```
 
