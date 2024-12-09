@@ -63,9 +63,12 @@ ages_tab <- read_table(file = here::here("Week 2",
 #| label: wd-2
 
 # Source: Challenge 3, Question 1
+# REVISION AFTER MIDTERM: since question numbers are all in the 900s, subtracting 900 from each in order to refer to them by their single/double digit identifier
+
+# Source: Challenge 3, Question 1
 teacher_evals_compare <- teacher_evals |>
-  filter(question_no == 903) |>
   mutate(
+    question_no = question_no - 900,
     SET_level = ifelse(SET_score_avg >= 4,
                        "excellent", 
                        "standard"),
@@ -73,6 +76,7 @@ teacher_evals_compare <- teacher_evals |>
                        "junior", 
                        "senior")
   ) |>
+  filter(question_no == 3) |>
   select(
     course_id,
     SET_level,
@@ -393,8 +397,8 @@ ca_childcare |>
                        y = weekly_price,
                        # reorder legend
                        color = fct_reorder2(.f = region,
-                                           .x = study_year,
-                                           .y = weekly_price))) +
+                                            .x = study_year,
+                                            .y = weekly_price))) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "loess") +
   facet_wrap(~ age_group) +
@@ -476,21 +480,25 @@ ggplot(data = surveys) +
 ```{r}
 #| label: r-2-2
 
+# REVISION AFTER MIDTERM: since question numbers are all in the 900s, subtracting 900 from each in order to refer to them by their single/double digit identifier
+
 # Source: Challenge 3, Question 1
 teacher_evals_compare <- teacher_evals |>
-  filter(question_no == 903) |>
-  mutate(SET_level = ifelse(SET_score_avg >= 4,
+  mutate(
+    question_no = question_no - 900,
+    SET_level = ifelse(SET_score_avg >= 4,
                        "excellent", 
                        "standard"),
-         sen_level = ifelse(seniority <= 4, 
+    sen_level = ifelse(seniority <= 4, 
                        "junior", 
                        "senior")
   ) |>
+  filter(question_no == 3) |>
   select(
     course_id,
     SET_level,
     sen_level
-  )
+)
 
 ```
 
@@ -641,8 +649,8 @@ ca_childcare |>
                        y = weekly_price,
                        # reorder legend
                        color = fct_reorder2(.f = region,
-                                           .x = study_year,
-                                           .y = weekly_price))) +
+                                            .x = study_year,
+                                            .y = weekly_price))) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "loess") +
   facet_wrap(~ age_group) +
@@ -741,8 +749,8 @@ ca_childcare |>
                        y = weekly_price,
                        # reorder legend
                        color = fct_reorder2(.f = region,
-                                           .x = study_year,
-                                           .y = weekly_price))) +
+                                            .x = study_year,
+                                            .y = weekly_price))) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "loess") +
   facet_wrap(~ age_group) +
@@ -811,9 +819,9 @@ fish |>
   # custom point colors for each species
   facet_wrap(~ species, scales = "free_y") +
   scale_color_manual(values = c("Brown" = "darkseagreen3", 
-                               "Bull" = "orchid2", 
-                               "RBT" = "indianred1", 
-                               "WCT" = "dodgerblue1")) +
+                                "Bull" = "orchid2", 
+                                "RBT" = "indianred1", 
+                                "WCT" = "dodgerblue1")) +
   theme_minimal() +
   # add additional styling to plot theme
   theme(plot.title = element_text(size = 16, 
@@ -841,8 +849,6 @@ fish |>
 ```{r}
 #| label: dvs-3-2
 
-# Source: Challenge 7, Question 5
-
 # REVISION AFTER MIDTERM: removing multiple calls to is.na() and replacing with one call to drop_na()
 # REVISION AFTER MIDTERM: using fct_reorder2() to order legend instead of hardcoding order
 
@@ -867,8 +873,8 @@ ca_childcare |>
                        y = weekly_price,
                        # reorder legend
                        color = fct_reorder2(.f = region,
-                                           .x = study_year,
-                                           .y = weekly_price))) +
+                                            .x = study_year,
+                                            .y = weekly_price))) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "loess") +
   facet_wrap(~ age_group) +
@@ -896,6 +902,8 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-3-3
+
+# Source: Challenge 7, Question 5
 
 # Source for theme elements:
 # - https://ggplot2.tidyverse.org/reference/element.html
@@ -933,9 +941,9 @@ fish |>
   # custom point colors for each species
   facet_wrap(~ species, scales = "free_y") +
   scale_color_manual(values = c("Brown" = "darkseagreen3", 
-                               "Bull" = "orchid2", 
-                               "RBT" = "indianred1", 
-                               "WCT" = "dodgerblue1")) +
+                                "Bull" = "orchid2", 
+                                "RBT" = "indianred1", 
+                                "WCT" = "dodgerblue1")) +
   theme_minimal() +
   # add additional styling to plot theme
   theme(plot.title = element_text(size = 16, 
@@ -1356,8 +1364,8 @@ ca_childcare |>
                        y = weekly_price,
                        # reorder legend
                        color = fct_reorder2(.f = region,
-                                           .x = study_year,
-                                           .y = weekly_price))) +
+                                            .x = study_year,
+                                            .y = weekly_price))) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "loess") +
   facet_wrap(~ age_group) +

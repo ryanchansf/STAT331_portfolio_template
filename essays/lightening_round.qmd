@@ -6,16 +6,22 @@ editor: visual
 
 **Answer each of the following questions with *one sentence* including a brief explanation.**
 
-1. Finish the sentence with another student’s name: "If [Name of Student] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
+1.  Finish the sentence with another student’s name: "If \[Name of Student\] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
 
+If Kyle Taschek doesn't earn an A, then nobody should, because throughout the course he demonstrated strong communication skills during partner activities and ensured that partners stuck to their coder/developer roles to promote a collaborative and constructive mindset in STAT 331.
 
-2. What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
+1.  What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
 
+The most difficult part in the class was adjusting to the "revising your thinking" aspect of the class, as most classes don't promote adjustments and content revisions on an assignment-by-assignment basis.
 
-3. What was the easiest part of the class for you? Explain why.
+1.  What was the easiest part of the class for you? Explain why.
 
+The easiest part of the class for me was collaborating with my team members because I felt inclined to help others with understanding concepts knowing that it would benefit others beyond myself.
 
-4. What part of the class surprised or interested you the most? Explain why.
+1.  What part of the class surprised or interested you the most? Explain why.
 
+The most engaging/interesting part of the course was learning how to simulate data in R, as it taught me how to carry out various statistical analyses that I've learned in other statistics classes through computation and programming.
 
-5. Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+1.  Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+
+The most important piece of advice for new STAT 331 students would be to always be receptive to feedback, as it will set yourself up for a continued and gratifying learning experience as you apply your learnings towards new concepts.
